@@ -140,7 +140,7 @@ public class SQLiteJDBC {
 
     }
 
-    public void Update(String db, String sql) {
+    public void update(String db, String sql) {
         try {
             c = DriverManager.getConnection("jdbc:sqlite:" + db);
             c.setAutoCommit(false);
@@ -165,7 +165,7 @@ public class SQLiteJDBC {
 
     }
 
-    public void Update(String db, String sql, Object obj) {
+    public void update(String db, String sql, Object obj) {
         try {
             c = DriverManager.getConnection("jdbc:sqlite:" + db);
             c.setAutoCommit(false);
