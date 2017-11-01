@@ -4,4 +4,4 @@ simple sqlitejdbc library in java.
 
 common for all SIPS modules.
 
-Depends on [Sqlite JDBC](https://bitbucket.org/xerial/sqlite-jdbc)
+Depends on [Sqlite JDBC](https://github.com/xerial/sqlite-jdbc)
