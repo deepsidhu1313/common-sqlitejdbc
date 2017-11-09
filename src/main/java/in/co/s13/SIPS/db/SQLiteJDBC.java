@@ -31,11 +31,29 @@ import java.util.logging.Logger;
 
 public class SQLiteJDBC {
 
-    Connection c = null;
-    Statement stmt = null;
-    ResultSet rs = null;
-    public boolean verbose = false;
+    /**
+     * Database Connection
+     */
+    private Connection connection = null;
+    /**
+     * Database statement to hold SQL queries/operations
+     */
+    private Statement statement = null;
 
+    /**
+     * Verbosity of SQL queries/statements/operations and errors. if set to true
+     * will display all messages and errors default is false to prevent clutter
+     * on screen
+     */
+    private boolean verbose = false;
+
+    /**
+     * Modern implementation of OLDSqliteJDBC, in which you can set database
+     * file with every operation
+     * <b> Safe practice: always call closeConnection() after every operation to
+     * clean resources and unlock DB file</b>
+     * Constructor Loads the sqlite JDBC library
+     */
     public SQLiteJDBC() {
         try {
             Class.forName("org.sqlite.JDBC");
@@ -44,21 +62,41 @@ public class SQLiteJDBC {
         }
     }
 
+    /**
+     * Verbosity of SQL queries/statements/operations and errors. if set to true
+     * will display all messages and errors default is false to prevent clutter
+     * on screen
+     *
+     * @return Verbosity
+     */
     public boolean isVerbose() {
         return verbose;
     }
 
+    /**
+     * Set verbosity Verbosity of SQL queries/statements/operations and errors.
+     * if set to true will display all messages and errors default is false to
+     * prevent clutter on screen
+     *
+     * @param verbose
+     */
     public void setVerbose(boolean verbose) {
         this.verbose = verbose;
     }
 
+    /**
+     * *
+     * closes connection and statement for last DB file and performed operation
+     * Good practice: perform this operation after every db operation,
+     * so that single object can be used to handle multiple db files 
+     */
     public void closeConnection() {
         try {
-            stmt.close();
-            c.close();
+            statement.close();
+            connection.close();
         } catch (SQLException ex) {
             try {
-                c.close();
+                connection.close();
             } catch (SQLException ex1) {
                 Logger.getLogger(SQLiteJDBC.class.getName()).log(Level.SEVERE, null, ex1);
             }
@@ -67,13 +105,19 @@ public class SQLiteJDBC {
 
     }
 
+    /**
+     * Helps in performing create table statement
+     *
+     * @param db : database location
+     * @param sql : SQL statement to create table
+     */
     public void createtable(String db, String sql) {
         try {
-            c = DriverManager.getConnection("jdbc:sqlite:" + db);
+            connection = DriverManager.getConnection("jdbc:sqlite:" + db);
             //System.out.println("Opened database successfully");
 
-            stmt = c.createStatement();
-            stmt.executeUpdate(sql);
+            statement = connection.createStatement();
+            statement.executeUpdate(sql);
             // stmt.close();
             // c.close();
             if (isVerbose()) {
@@ -89,17 +133,23 @@ public class SQLiteJDBC {
 
     }
 
+    /**
+     * Helps in performing insert operation
+     *
+     * @param db : database location
+     * @param sql : SQL statement to insert data
+     */
     public void insert(String db, String sql) {
         try {
-            c = DriverManager.getConnection("jdbc:sqlite:" + db);
-            c.setAutoCommit(false);
+            connection = DriverManager.getConnection("jdbc:sqlite:" + db);
+            connection.setAutoCommit(false);
             //  System.out.println("Opened database successfully");
 
-            stmt = c.createStatement();
-            stmt.executeUpdate(sql);
+            statement = connection.createStatement();
+            statement.executeUpdate(sql);
 
             //    stmt.close();
-            c.commit();
+            connection.commit();
             //    c.close();
             if (isVerbose()) {
                 System.out.println(sql);
@@ -114,16 +164,23 @@ public class SQLiteJDBC {
         }
     }
 
+    /**
+     * Helps in performing select operation
+     *
+     * @param db : database location
+     * @param sql : SQL statement to select data
+     * @return : rows in result set
+     */
     public ResultSet select(String db, String sql) {
 
         ResultSet rs2 = null;
         try {
-            c = DriverManager.getConnection("jdbc:sqlite:" + db);
-            c.setAutoCommit(false);
+            connection = DriverManager.getConnection("jdbc:sqlite:" + db);
+            connection.setAutoCommit(false);
             //  System.out.println("Opened database successfully");
 
-            stmt = c.createStatement();
-            rs2 = stmt.executeQuery(sql);
+            statement = connection.createStatement();
+            rs2 = statement.executeQuery(sql);
             if (isVerbose()) {
                 System.out.println(sql);
                 System.out.println("Select Operation done successfully on DB " + db);
@@ -140,14 +197,20 @@ public class SQLiteJDBC {
 
     }
 
+    /**
+     * Helps in performing update operation
+     *
+     * @param db : database location
+     * @param sql : SQL statement to update data
+     */
     public void update(String db, String sql) {
         try {
-            c = DriverManager.getConnection("jdbc:sqlite:" + db);
-            c.setAutoCommit(false);
+            connection = DriverManager.getConnection("jdbc:sqlite:" + db);
+            connection.setAutoCommit(false);
 
-            stmt = c.createStatement();
-            int r = stmt.executeUpdate(sql);
-            c.commit();
+            statement = connection.createStatement();
+            int r = statement.executeUpdate(sql);
+            connection.commit();
 
             //      stmt.close();
             //    c.close();
@@ -157,7 +220,7 @@ public class SQLiteJDBC {
             }
         } catch (SQLException ex) {
             if (isVerbose()) {
-                System.out.println(sql + " didnot executed on " + db);
+                System.err.println(sql + " didnot executed on " + db);
             }
             Logger.getLogger(SQLiteJDBC.class.getName()).log(Level.SEVERE, null, ex);
 
@@ -165,10 +228,17 @@ public class SQLiteJDBC {
 
     }
 
+    /**
+     * Helps in performing update operation
+     *
+     * @param db : database location
+     * @param sql : SQL statement to update object
+     * @param obj: new object value
+     */
     public void update(String db, String sql, Object obj) {
         try {
-            c = DriverManager.getConnection("jdbc:sqlite:" + db);
-            c.setAutoCommit(false);
+            connection = DriverManager.getConnection("jdbc:sqlite:" + db);
+            connection.setAutoCommit(false);
             PreparedStatement ps = null;
 
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -182,11 +252,11 @@ public class SQLiteJDBC {
             byte[] data = bos.toByteArray();
 
 //            sql = "insert into javaobject (javaObject) values(?)";
-            ps = c.prepareStatement(sql);
+            ps = connection.prepareStatement(sql);
             ps.setObject(1, data);
             ps.executeUpdate();
 
-            c.commit();
+            connection.commit();
 
             if (isVerbose()) {
                 System.out.println(sql);
@@ -207,15 +277,22 @@ public class SQLiteJDBC {
 
     }
 
+    /**
+     * Helps in performing delete operation
+     *
+     * @param db : database location
+     * @param sql : SQL statement to delete data
+     */
+
     public void delete(String db, String sql) {
         try {
-            c = DriverManager.getConnection("jdbc:sqlite:" + db);
-            c.setAutoCommit(false);
+            connection = DriverManager.getConnection("jdbc:sqlite:" + db);
+            connection.setAutoCommit(false);
             // System.out.println("Opened database successfully");
 
-            stmt = c.createStatement();
-            stmt.executeUpdate(sql);
-            c.commit();
+            statement = connection.createStatement();
+            statement.executeUpdate(sql);
+            connection.commit();
 
             // stmt.close();
             // c.close();
@@ -232,15 +309,22 @@ public class SQLiteJDBC {
         }
     }
 
+     /**
+     * Helps in performing SQL operation
+     *
+     * @param db : database location
+     * @param sql : SQL statement to be executed
+     */
+   
     public void execute(String db, String sql) {
         try {
-            c = DriverManager.getConnection("jdbc:sqlite:" + db);
-            c.setAutoCommit(false);
+            connection = DriverManager.getConnection("jdbc:sqlite:" + db);
+            connection.setAutoCommit(false);
             // System.out.println("Opened database successfully");
 
-            stmt = c.createStatement();
-            stmt.executeUpdate(sql);
-            c.commit();
+            statement = connection.createStatement();
+            statement.executeUpdate(sql);
+            connection.commit();
 
             // stmt.close();
             // c.close();
@@ -258,6 +342,14 @@ public class SQLiteJDBC {
 
     }
 
+    /**
+     * Helps in saving database file to text file, where rows are separated by
+     * new lines and columns by tabs
+     *
+     * @param db: database file
+     * @param sql: SQL Select query
+     * @param file: to save the results of select operation
+     */
     public void toFile(String db, String sql, String file) {
         try {
             ResultSet result = this.select(db, sql);

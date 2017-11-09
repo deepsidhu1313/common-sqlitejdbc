@@ -35,16 +35,22 @@ import java.util.logging.Logger;
 
 public class OLDSQLiteJDBC {
 
-    Connection c = null;
-    Statement stmt = null;
-    ResultSet rs = null;
-    String db;
+    private Connection connection = null;
+    private Statement statement = null;
+    private ResultSet resultSet = null;
+    private String databaseLocation;
 
+    /**
+     * OLDSQLiteJDBC class supports simple functions on single database file
+     * <b>Note:</b> No need to close connection
+     *
+     * @param dbloc specifies the location of database file
+     */
     public OLDSQLiteJDBC(String dbloc) {
-        db = dbloc;
+        databaseLocation = dbloc;
         try {
             Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:" + db);
+            connection = DriverManager.getConnection("jdbc:sqlite:" + databaseLocation);
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(OLDSQLiteJDBC.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SQLException ex) {
@@ -53,34 +59,49 @@ public class OLDSQLiteJDBC {
 
     }
 
+    /**
+     * *
+     * Closes connection will remove file lock on database file If you perform
+     * this operation and want to perform any other operation, you have to open
+     * connection to database file again.
+     */
     public void closeConnection() {
         try {
-            c.close();
+            connection.close();
         } catch (SQLException ex) {
             Logger.getLogger(OLDSQLiteJDBC.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
 
+    /**
+     * Close the statement and free up resource
+     */
     public void closeStatement() {
         try {
-            stmt.close();
+            statement.close();
         } catch (SQLException ex) {
             Logger.getLogger(OLDSQLiteJDBC.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
 
+    /**
+     * *
+     * Helps in performing create table statement
+     *
+     * @param sql : SQL statement to create table
+     */
     public void createtable(String sql) {
         try {
             //System.out.println("Opened database successfully");
 
-            stmt = c.createStatement();
-            stmt.executeUpdate(sql);
-            // stmt.close();
-            // c.close();
+            statement = connection.createStatement();
+            statement.executeUpdate(sql);
+            // statement.close();
+            // connection.close();
             System.out.println(sql);
-            System.out.println("Table created successfully on DB " + db);
+            System.out.println("Table created successfully on DB " + databaseLocation);
 
         } catch (SQLException e) {
             System.out.println(e.getClass().getName() + ": " + e.getMessage());
@@ -89,19 +110,25 @@ public class OLDSQLiteJDBC {
 
     }
 
+    /**
+     * *
+     * Helps to execute INSERT SQL statement on database file
+     *
+     * @param sql : SQL statement to perform insert operation
+     */
     public void insert(String sql) {
         try {
-            c.setAutoCommit(false);
+            connection.setAutoCommit(false);
             //  System.out.println("Opened database successfully");
 
-            stmt = c.createStatement();
-            stmt.executeUpdate(sql);
+            statement = connection.createStatement();
+            statement.executeUpdate(sql);
 
-            //    stmt.close();
-            c.commit();
-            //    c.close();
+            //    statement.close();
+            connection.commit();
+            //    connection.close();
             System.out.println(sql);
-            System.out.println("Records created successfully on DB " + db);
+            System.out.println("Records created successfully on DB " + databaseLocation);
 
         } catch (SQLException e) {
             System.out.println(e.getClass().getName() + ": " + e.getMessage());
@@ -109,20 +136,28 @@ public class OLDSQLiteJDBC {
         }
     }
 
+    /**
+     * **
+     * Helps performing select operation
+     *
+     * @param sql : SQL select query to be performed on database file
+     * @return contains the rows of requested data
+     * @throws SQLException
+     */
     public ResultSet select(String sql) throws SQLException {
 
         ResultSet rs2 = null;
         try {
-            c.setAutoCommit(false);
+            connection.setAutoCommit(false);
             //  System.out.println("Opened database successfully");
 
-            stmt = c.createStatement();
-            rs2 = stmt.executeQuery(sql);
+            statement = connection.createStatement();
+            rs2 = statement.executeQuery(sql);
             System.out.println(sql);
-            System.out.println("Select Operation done successfully on DB " + db);
+            System.out.println("Select Operation done successfully on DB " + databaseLocation);
         } catch (SQLException e) {
             System.out.println(e.getClass().getName() + ": " + e.getMessage());
-            System.out.println("Select Operation was not done successfully on DB " + db);
+            System.out.println("Select Operation was not done successfully on DB " + databaseLocation);
             return null;
         }
 
@@ -130,18 +165,23 @@ public class OLDSQLiteJDBC {
 
     }
 
+    /**
+     * Helps in performing update statement on database file
+     *
+     * @param sql: SQL statement to update data in database file
+     */
     public void Update(String sql) {
         try {
-            c.setAutoCommit(false);
+            connection.setAutoCommit(false);
 
-            stmt = c.createStatement();
-            stmt.executeUpdate(sql);
-            c.commit();
+            statement = connection.createStatement();
+            statement.executeUpdate(sql);
+            connection.commit();
 
-            //      stmt.close();
-            //    c.close();
+            //      statement.close();
+            //    connection.close();
             System.out.println(sql);
-            System.out.println("Update Operation done successfully on DB " + db);
+            System.out.println("Update Operation done successfully on DB " + databaseLocation);
         } catch (SQLException e) {
             System.out.println(e.getClass().getName() + ": " + e.getMessage());
 
@@ -149,9 +189,15 @@ public class OLDSQLiteJDBC {
 
     }
 
+    /**
+     * Updates the Java Object in the database file
+     *
+     * @param sql: SQL query to update Java Object
+     * @param obj: Value to inserted
+     */
     public void UpdateObj(String sql, Object obj) {
         try {
-            c.setAutoCommit(false);
+            connection.setAutoCommit(false);
             PreparedStatement ps = null;
 
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -165,14 +211,14 @@ public class OLDSQLiteJDBC {
             byte[] data = bos.toByteArray();
 
 //            sql = "insert into javaobject (javaObject) values(?)";
-            ps = c.prepareStatement(sql);
+            ps = connection.prepareStatement(sql);
             ps.setObject(1, data);
             ps.executeUpdate();
 
-            c.commit();
+            connection.commit();
 
             System.out.println(sql);
-            System.out.println("Update Operation done successfully on DB " + db);
+            System.out.println("Update Operation done successfully on DB " + databaseLocation);
         } catch (SQLException e) {
             System.out.println(e.getClass().getName() + ": " + e.getMessage());
 
@@ -182,16 +228,22 @@ public class OLDSQLiteJDBC {
 
     }
 
+    /**
+     * Helps retriving the Java Object from database file
+     *
+     * @param sql : SQL Select operation
+     * @return Java Object
+     */
     public Object getObject(String sql) {
         Object rmObj = null;
         try {
-            c.setAutoCommit(false);
+            connection.setAutoCommit(false);
             PreparedStatement ps = null;
             ResultSet rs = null;
             //String sql=null;
 
             //sql="select * from javaobject where id=1";
-            ps = c.prepareStatement(sql);
+            ps = connection.prepareStatement(sql);
 
             rs = ps.executeQuery();
 
@@ -226,65 +278,84 @@ public class OLDSQLiteJDBC {
         return rmObj;
     }
 
+    /**
+     * *
+     * Helps in performing delete operation on database file
+     *
+     * @param sql : SQL DELETE query to be performed on database file
+     */
     public void delete(String sql) {
         try {
-            c.setAutoCommit(false);
+            connection.setAutoCommit(false);
             // System.out.println("Opened database successfully");
 
-            stmt = c.createStatement();
-            stmt.executeUpdate(sql);
-            c.commit();
+            statement = connection.createStatement();
+            statement.executeUpdate(sql);
+            connection.commit();
 
-            // stmt.close();
-            // c.close();
+            // statement.close();
+            // connection.close();
             System.out.println(sql);
-            System.out.println("Delete Operation done successfully on DB " + db);
+            System.out.println("Delete Operation done successfully on DB " + databaseLocation);
         } catch (SQLException e) {
             System.out.println(e.getClass().getName() + ": " + e.getMessage());
 
         }
     }
 
+    /**
+     * *
+     * Helps in executing SQL operation
+     *
+     * @param sql : SQL operation
+     */
     public void execute(String sql) {
         try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:" + db);
-            c.setAutoCommit(false);
+//            Class.forName("org.sqlite.JDBC");
+//            connection = DriverManager.getConnection("jdbc:sqlite:" + databaseLocation);
+            connection.setAutoCommit(false);
             // System.out.println("Opened database successfully");
 
-            stmt = c.createStatement();
-            stmt.executeUpdate(sql);
-            c.commit();
+            statement = connection.createStatement();
+            statement.executeUpdate(sql);
+            connection.commit();
 
-            // stmt.close();
-            // c.close();
+            // statement.close();
+            // connection.close();
             System.out.println(sql);
-            System.out.println("Query Executed Operation done successfully on DB " + db);
-        } catch (ClassNotFoundException | SQLException e) {
+            System.out.println("Query Executed Operation done successfully on DB " + databaseLocation);
+        } catch (SQLException e) {
             System.out.println(e.getClass().getName() + ": " + e.getMessage());
 
         }
 
     }
 
+    /**
+     * Helps in saving database file to text file, where rows are separated by
+     * new lines and columns by tabs
+     *
+     * @param sql: SQL Select query
+     * @param file: to save the results of select operation
+     */
     public void toFile(String sql, String file) {
         try {
             ResultSet result = this.select(sql);
             ResultSetMetaData rsm = result.getMetaData();
             int columncount = rsm.getColumnCount();
-            PrintStream out = new PrintStream(file); //new AppendFileStream
-            for (int i = 1; i <= columncount; i++) {
-                out.print(rsm.getColumnName(i) + "\t");
-            }
-            out.print("\n");
-            while (result.next()) {
+            try (PrintStream out = new PrintStream(file)) {
                 for (int i = 1; i <= columncount; i++) {
-                    out.print(result.getString(i) + "\t");
+                    out.print(rsm.getColumnName(i) + "\t");
                 }
                 out.print("\n");
+                while (result.next()) {
+                    for (int i = 1; i <= columncount; i++) {
+                        out.print(result.getString(i) + "\t");
+                    }
+                    out.print("\n");
 
+                }
             }
-            out.close();
         } catch (SQLException ex) {
             Logger.getLogger(OLDSQLiteJDBC.class.getName()).log(Level.SEVERE, null, ex);
         } catch (FileNotFoundException ex) {
