@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>in.co.s13</groupId>
     <artifactId>common-sqlite-jdbc</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.2</version>
     <packaging>jar</packaging>
     <dependencies>
         <dependency>
@@ -17,7 +17,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
-        <distributionManagement>
+    <distributionManagement>
         <snapshotRepository>
             <id>ossrh</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
@@ -70,6 +70,9 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
                 <version>1.5</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
                 <executions>
                     <execution>
                         <id>sign-artifacts</id>
@@ -80,7 +83,40 @@
                     </execution>
                 </executions>
             </plugin>
-            
         </plugins>
     </build>
+    <developers>
+        <developer>
+            <id>deepsidhu1313</id>
+            <name>Navdeep Singh</name>
+            <email>deepsidhu1313@users.noreply.github.com</email>
+            <organization>S13</organization>
+            <organizationUrl>http://s13.co.in</organizationUrl>
+            <roles>
+                <role>Project-Administrator</role>
+                <role>Developer</role>
+            </roles>
+            <timezone>-5</timezone>
+        </developer>
+    </developers>
+    <organization>
+        <name>S13 Development Team</name>
+        <url>http://s13.co.in</url>
+    </organization>
+    <licenses>
+        <license>
+            <name>GNU General Public License</name>
+            <url>http://www.gnu.org/licenses/</url>
+            <distribution>repo</distribution>
+            <comments>GNU General Public License</comments>
+        </license>
+    </licenses>
+    <scm>
+        <connection>scm:git:git://github.com/deepsidhu1313/common-sqlitejdbc.git</connection>
+        <developerConnection>scm:git:git@github.com:deepsidhu1313/common-sqlitejdbc.git</developerConnection>
+        <url>https://github.com/deepsidhu1313/common-sqlitejdbc</url>
+    </scm>
+    <name>Common SQLite-JDBC Library</name>
+    <description>Common SQLite-JDBC Library for SIPS</description>
+    <url>https://github.com/deepsidhu1313/common-sqlitejdbc</url>
 </project>
