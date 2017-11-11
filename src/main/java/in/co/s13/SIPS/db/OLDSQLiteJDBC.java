@@ -90,7 +90,7 @@ public class OLDSQLiteJDBC {
      * *
      * Helps in performing create table statement
      *
-     * @param sql : SQL statement to create table
+     * @param sql  SQL statement to create table
      */
     public void createtable(String sql) {
         try {
@@ -114,7 +114,7 @@ public class OLDSQLiteJDBC {
      * *
      * Helps to execute INSERT SQL statement on database file
      *
-     * @param sql : SQL statement to perform insert operation
+     * @param sql  SQL statement to perform insert operation
      */
     public void insert(String sql) {
         try {
@@ -140,7 +140,7 @@ public class OLDSQLiteJDBC {
      * **
      * Helps performing select operation
      *
-     * @param sql : SQL select query to be performed on database file
+     * @param sql  SQL select query to be performed on database file
      * @return contains the rows of requested data
      * @throws SQLException
      */
@@ -168,7 +168,7 @@ public class OLDSQLiteJDBC {
     /**
      * Helps in performing update statement on database file
      *
-     * @param sql: SQL statement to update data in database file
+     * @param sql  SQL statement to update data in database file
      */
     public void Update(String sql) {
         try {
@@ -192,8 +192,8 @@ public class OLDSQLiteJDBC {
     /**
      * Updates the Java Object in the database file
      *
-     * @param sql: SQL query to update Java Object
-     * @param obj: Value to inserted
+     * @param sql  SQL query to update Java Object
+     * @param obj  Value to inserted
      */
     public void UpdateObj(String sql, Object obj) {
         try {
@@ -231,7 +231,7 @@ public class OLDSQLiteJDBC {
     /**
      * Helps retriving the Java Object from database file
      *
-     * @param sql : SQL Select operation
+     * @param sql  SQL Select operation
      * @return Java Object
      */
     public Object getObject(String sql) {
@@ -282,7 +282,7 @@ public class OLDSQLiteJDBC {
      * *
      * Helps in performing delete operation on database file
      *
-     * @param sql : SQL DELETE query to be performed on database file
+     * @param sql  SQL DELETE query to be performed on database file
      */
     public void delete(String sql) {
         try {
@@ -307,7 +307,7 @@ public class OLDSQLiteJDBC {
      * *
      * Helps in executing SQL operation
      *
-     * @param sql : SQL operation
+     * @param sql  SQL operation
      */
     public void execute(String sql) {
         try {
@@ -335,8 +335,8 @@ public class OLDSQLiteJDBC {
      * Helps in saving database file to text file, where rows are separated by
      * new lines and columns by tabs
      *
-     * @param sql: SQL Select query
-     * @param file: to save the results of select operation
+     * @param sql  SQL Select query
+     * @param file  to save the results of select operation
      */
     public void toFile(String sql, String file) {
         try {
