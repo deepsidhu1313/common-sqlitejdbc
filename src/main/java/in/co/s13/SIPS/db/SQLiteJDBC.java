@@ -87,31 +87,40 @@ public class SQLiteJDBC {
     /**
      * *
      * closes connection and statement for last DB file and performed operation
-     * Good practice: perform this operation after every db operation,
-     * so that single object can be used to handle multiple db files 
+     * Good practice: perform this operation after every db operation, so that
+     * single object can be used to handle multiple db files
      */
     public void closeConnection() {
+        // Either may be null when the connection never opened. Callers normally
+        // close in response to a failed operation, so throwing here would turn
+        // a logged, recoverable error into a crash.
         try {
-            statement.close();
-            connection.close();
-        } catch (SQLException ex) {
-            try {
-                connection.close();
-            } catch (SQLException ex1) {
-                Logger.getLogger(SQLiteJDBC.class.getName()).log(Level.SEVERE, null, ex1);
+            if (statement != null) {
+                statement.close();
             }
+        } catch (SQLException ex) {
             Logger.getLogger(SQLiteJDBC.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            statement = null;
         }
-
+        try {
+            if (connection != null) {
+                connection.close();
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(SQLiteJDBC.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            connection = null;
+        }
     }
 
     /**
      * Helps in performing create table statement
      *
-     * @param db  database location
-     * @param sql  SQL statement to create table
+     * @param db database location
+     * @param sql SQL statement to create table
      */
-    public void createtable(String db, String sql) {
+    public boolean createtable(String db, String sql) {
         try {
             connection = DriverManager.getConnection("jdbc:sqlite:" + db);
             //System.out.println("Opened database successfully");
@@ -129,15 +138,16 @@ public class SQLiteJDBC {
                 System.out.println(sql + " did not executed on " + db);
             }
             Logger.getLogger(SQLiteJDBC.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
         }
-
+        return true;
     }
 
     /**
      * Helps in performing insert operation
      *
-     * @param db  database location
-     * @param sql  SQL statement to insert data
+     * @param db database location
+     * @param sql SQL statement to insert data
      */
     public void insert(String db, String sql) {
         try {
@@ -167,9 +177,9 @@ public class SQLiteJDBC {
     /**
      * Helps in performing select operation
      *
-     * @param db  database location
-     * @param sql  SQL statement to select data
-     * @return  rows in result set
+     * @param db database location
+     * @param sql SQL statement to select data
+     * @return rows in result set
      */
     public ResultSet select(String db, String sql) {
 
@@ -200,8 +210,8 @@ public class SQLiteJDBC {
     /**
      * Helps in performing update operation
      *
-     * @param db  database location
-     * @param sql  SQL statement to update data
+     * @param db database location
+     * @param sql SQL statement to update data
      */
     public void update(String db, String sql) {
         try {
@@ -231,9 +241,9 @@ public class SQLiteJDBC {
     /**
      * Helps in performing update operation
      *
-     * @param db  database location
-     * @param sql  SQL statement to update object
-     * @param obj  new object value
+     * @param db database location
+     * @param sql SQL statement to update object
+     * @param obj new object value
      */
     public void update(String db, String sql, Object obj) {
         try {
@@ -280,10 +290,9 @@ public class SQLiteJDBC {
     /**
      * Helps in performing delete operation
      *
-     * @param db  database location
-     * @param sql  SQL statement to delete data
+     * @param db database location
+     * @param sql SQL statement to delete data
      */
-
     public void delete(String db, String sql) {
         try {
             connection = DriverManager.getConnection("jdbc:sqlite:" + db);
@@ -309,13 +318,12 @@ public class SQLiteJDBC {
         }
     }
 
-     /**
+    /**
      * Helps in performing SQL operation
      *
-     * @param db  database location
-     * @param sql  SQL statement to be executed
+     * @param db database location
+     * @param sql SQL statement to be executed
      */
-   
     public void execute(String db, String sql) {
         try {
             connection = DriverManager.getConnection("jdbc:sqlite:" + db);
