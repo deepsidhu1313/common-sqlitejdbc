@@ -91,18 +91,27 @@ public class SQLiteJDBC {
      * single object can be used to handle multiple db files
      */
     public void closeConnection() {
+        // Either may be null when the connection never opened. Callers normally
+        // close in response to a failed operation, so throwing here would turn
+        // a logged, recoverable error into a crash.
         try {
-            statement.close();
-            connection.close();
-        } catch (SQLException ex) {
-            try {
-                connection.close();
-            } catch (SQLException ex1) {
-                Logger.getLogger(SQLiteJDBC.class.getName()).log(Level.SEVERE, null, ex1);
+            if (statement != null) {
+                statement.close();
             }
+        } catch (SQLException ex) {
             Logger.getLogger(SQLiteJDBC.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            statement = null;
         }
-
+        try {
+            if (connection != null) {
+                connection.close();
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(SQLiteJDBC.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            connection = null;
+        }
     }
 
     /**
